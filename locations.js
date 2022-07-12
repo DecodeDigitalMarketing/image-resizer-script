@@ -1,7 +1,7 @@
 const XLSX              =   require("xlsx");
 const { curly }         =   require('node-libcurl');
 
-const COOKIE    = 'cq-authoring-mode=TOUCH; AMCV_E13D51085E59F02C0A495CDC%40AdobeOrg=-2121179033%7CMCIDTS%7C19180%7CMCMID%7C82662739415969301494412556172947609393%7CMCAAMLH-1657730806%7C9%7CMCAAMB-1657730806%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1657133206s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C5.3.0; __loc=TX%7CUS; fabrickId=E1%3AOh-QFJUIqpR_ZphvJz7PCmtpJ84WlV1zHq57dqvUBRCkkEwZjEag_NtuCGpH93jI04yw5YQQzktA7Vg8tO1hnHrS2oQTE4pvtfiFA5JNK0KS5tKLoV7wZ1SXte6Mt6ictxGaC8sA2Lx3vPoxLag6jw; cq-editor-layer.page=Edit; adcloud={%22_les_v%22:%22y%2Cadobecqms.net%2C1657231413%22}; utag_main=v_id:0181d4682ee0001ff0f496ad57060506f00a306700bd0$_sn:2$_ss:0$_st:1657231413780$vapi_domain:adobecqms.net$dc_visit:2$ses_id:1657229364835%3Bexp-session$_pn:4%3Bexp-session$dc_event:4%3Bexp-session$dc_region:us-east-1%3Bexp-session; oauth-configid=ims; login-token=f7a66dfd-d153-45cc-9a82-52a42baa6e2d%3a5f34583a-bcc2-435e-8ff0-c18442e3b297_17ecc320d2a0d8eb93f845d0ff5d4fb8%3acrx.default; aem-commonspirit="{2266af00c30339275a5d57c747a92e8569a54f7ec96cb25a6a404c5af1feb85ebc78684019a73becca5e158dcbe13d2bcfc3097ea88c767c6a623695bb8d0770f09ec7a5ea997ec4b4da229cebfeb5aa54dedca64839b09acf2fbadabbad3e919a89bfab7566da3d0d2a69768a101488}"; oauth-authid=ims; AMCVS_8F99160E571FC0427F000101%40AdobeOrg=1; lang=en%3Aus; s_cc=true; AMCV_8F99160E571FC0427F000101%40AdobeOrg=1687686476%7CMCIDTS%7C19185%7CMCMID%7C89156023496090199653760977611407146345%7CMCAAMLH-1658152675%7C9%7CMCAAMB-1658152675%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCCIDH%7C-613026243%7CMCOPTOUT-1657555072s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C3.0.0'
+const COOKIE    = 'cq-authoring-mode=TOUCH; __loc=TX|US; fabrickId=E1:Oh-QFJUIqpR_ZphvJz7PCmtpJ84WlV1zHq57dqvUBRCkkEwZjEag_NtuCGpH93jI04yw5YQQzktA7Vg8tO1hnHrS2oQTE4pvtfiFA5JNK0KS5tKLoV7wZ1SXte6Mt6ictxGaC8sA2Lx3vPoxLag6jw; cq-editor-layer.page=Edit; oauth-configid=ims; login-token=f7a66dfd-d153-45cc-9a82-52a42baa6e2d:5f34583a-bcc2-435e-8ff0-c18442e3b297_17ecc320d2a0d8eb93f845d0ff5d4fb8:crx.default; aem-commonspirit="{2266af00c30339275a5d57c747a92e8569a54f7ec96cb25a6a404c5af1feb85ebc78684019a73becca5e158dcbe13d2bcfc3097ea88c767c6a623695bb8d0770f09ec7a5ea997ec4b4da229cebfeb5aa54dedca64839b09acf2fbadabbad3e919a89bfab7566da3d0d2a69768a101488}"; oauth-authid=ims; AMCVS_8F99160E571FC0427F000101@AdobeOrg=1; lang=en:us; s_cc=true; wcmmode=edit; AMCV_8F99160E571FC0427F000101@AdobeOrg=1687686476|MCIDTS|19185|MCMID|89156023496090199653760977611407146345|MCAAMLH-1658177397|9|MCAAMB-1658177397|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCCIDH|-613026243|MCOPTOUT-1657579734s|NONE|MCAID|NONE|vVersion|3.0.0; adcloud={"_les_v":"y,adobecqms.net,1657574399"}; AMCVS_E13D51085E59F02C0A495CDC@AdobeOrg=1; AMCV_E13D51085E59F02C0A495CDC@AdobeOrg=-2121179033|MCIDTS|19185|MCMID|82662739415969301494412556172947609393|MCAAMLH-1658177399|9|MCAAMB-1658177399|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCOPTOUT-1657579799s|NONE|MCAID|NONE|vVersion|5.3.0; utag_main=v_id:0181d4682ee0001ff0f496ad57060506f00a306700bd0$_sn:3$_ss:1$_st:1657574400540$vapi_domain:adobecqms.net$dc_visit:3$ses_id:1657572600540;exp-session$_pn:1;exp-session$dc_event:1;exp-session$dc_region:us-east-1;exp-session'
 const crxde     = "https://author1.stage.commonspirit.adobecqms.net/crx/server/crx.default/jcr%3aroot/content/";
 
 const options = {
@@ -114,9 +114,44 @@ async function getLocationHours(market, locationName, path) {
     }
 }
 
+async function getLocationsFromDrupal() {
+    try {
+        const resp = await curly.get('https://find-a-location.decodedigital.co/fal-location-json', options);
+
+        const { statusCode, data } = resp
+        if (statusCode != 200) {
+            return null;
+        } 
+        return data.features ? data.features : []; 
+    } catch (error) {
+        console.log(error.message);
+        return null;
+    }
+}
+
+async function checkIfLocationIsPublished(market, locationPath) {
+    try {
+        const path  = `/content/${market}/en/locations/${locationPath}`;
+        const url   = `https://author1.stage.commonspirit.adobecqms.net/crx/de/replication.jsp?path=${path}&_charset_=utf-8`
+        const resp  = await curly.get(url, options);
+
+        const { statusCode, data } = resp
+        if (statusCode != 200) {
+            return null;
+        } 
+        return data['isActivated'];
+
+    } catch (error) {
+        console.log(error.message);
+        return null;
+    }
+}
+
 async function exportLocationsData() {
     try {
         const workbook = XLSX.utils.book_new();
+
+        const drupalLocations = await getLocationsFromDrupal();
 
         for (let market of availableMarkets) {
             const locations = await getLocations(market.market); 
@@ -128,6 +163,7 @@ async function exportLocationsData() {
             for (const location in locations) {
                 const locationDetails = []; 
                 if (locations[location]['jcr:content']) {
+
                     const item          = await getLocationPropreties(market.market, location); 
                     let itemAddress     = await getLocationAddressPropreties(market.market, location); 
                     let path            = '';
@@ -176,44 +212,50 @@ async function exportLocationsData() {
     }
 }
 
-async function getLocationsFromDrupal() {
-    try {
-        const resp = await curly.get('https://find-a-location.decodedigital.co/fal-location-json', options);
-
-        const { statusCode, data } = resp
-        if (statusCode != 200) {
-            return null;
-        } 
-        return data.features ? data.features : []; 
-    } catch (error) {
-        console.log(error.message);
-        return null;
-    }
-}
-
 async function runAuditLocations() {
     try {
-        let numberLocations = 0; 
-        const drupalLocations = await getLocationsFromDrupal(); 
+        let numberLocations     = 0; 
+        const drupalLocations   = await getLocationsFromDrupal(); 
+
+        console.log(drupalLocations.length);
+
+        let existInDrupalNotInAEM = []; 
+        let existInAEMNotInDrupal = 0; 
+
+        let aemLocations = 0;
 
         for (let market of availableMarkets) {
             const locations = await getLocations(market.market); 
             for (const location in locations) {
-                const locationDetails = []; 
+
                 if (locations[location]['jcr:content']) {
-                    const commonLocation = drupalLocations.filter((item) => {
-                        if (item.propreties.path === `locations/${location}`) {
-                            return item; 
+                    const locationIsPublished = await checkIfLocationIsPublished(market.market, location);
+
+                    if (locationIsPublished) {
+                        console.log(`This location: ${location} is published ...`);
+                        aemLocations+= 1; 
+                        // check if exist In Drupal
+                        // const item  = await getLocationPropreties(market.market, location);
+                        // console.log(item); 
+                        if (!drupalLocations.find(item => item.propreties.path === `locations/${location}`)) {
+                            existInAEMNotInDrupal += 1;
                         }
-                    });
+                        //drupalLocations.forEach((item) => console.log(item))
 
-                    if (commonLocation.length > 0) { 
 
+                        // if (existingLocationInDrupal.length ==  0) { 
+                        //     console.log(`This location ${item['jcr:title']} does not exist in Drupal`);
+                        // } else {
+                        //     console.log(`This location ${item['jcr:title']} exist in Drupal`);
+                        // }
                     }
                 }
             }
         }
 
+        console.log(aemLocations);
+
+        console.log(existInAEMNotInDrupal);
 
     } catch (error) {
         
@@ -222,5 +264,5 @@ async function runAuditLocations() {
 
 
 //exportLocationsData(); 
-getLocationsFromDrupal();
+//getLocationsFromDrupal();
 runAuditLocations(); 
