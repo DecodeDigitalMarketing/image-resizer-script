@@ -31,111 +31,112 @@ async function getImagesInDam() {
         if (result['jcr:primaryType'] == 'sling:Folder') {
             for(const res in result) {
                 if(excludeIndex.indexOf(res) == -1) {
-                    console.log("Folder :",res); 
                     await getAllImages(res, '/dam'); 
-                    console.log("------------");
                 }
             }
         }
-        
         
     } catch (error) {
         console.log(error.message);
         return null;
     }
+}
+
+function isHeavy(image) {
+    return (image["dam:size"] && image["dam:size"] > 250000) ? true : false; 
 }
 
 async function getAllImages(folder, parentFolderpath) {
     try {
-        const path = `${parentFolderpath}/${folder}`;
-        const resp = await curly.get(`${crxde}content${encodeURI(path)}.1.json`, options);
+            const path = `${parentFolderpath}/${folder}`;
+            const resp = await curly.get(`${crxde}content${encodeURI(path)}.1.json`, options);
 
-        const { statusCode, data } = resp
-        if (statusCode != 200) {
-            return null;
-        } 
+            const { statusCode, data } = resp
+            if (statusCode != 200) {
+                return null;
+            } 
 
-        const result = JSON.parse(data);
-        const excludeIndex = [ 
-            ':jcr:creadted', 
-            ':jcr:primaryType', 
-            'jcr:created', 
-            ':jcr:created',
-            'jcr:createdBy', 
-            'jcr:primaryType', 
-            ':jcr:mixinTypes', 
-            'jcr:content',
-            '::NodeIteratorSize',
-            'jcr:mixinTypes' 
-        ];
+            const result = JSON.parse(data);
+            const excludeIndex = [ 
+                ':jcr:creadted', 
+                ':jcr:primaryType', 
+                'jcr:created', 
+                ':jcr:created',
+                'jcr:createdBy', 
+                'jcr:primaryType', 
+                ':jcr:mixinTypes', 
+                'jcr:content',
+                '::NodeIteratorSize',
+                'jcr:mixinTypes' 
+            ];
 
-        const patternFile = new RegExp('(jpg|jpeg|png|svg|pdf|xml)$','g');
-        const patternImage = new RegExp('(jpg|jpeg|png|svg)$','g');
+            const heavyImages = [];
 
-        if (result['jcr:primaryType'] == 'sling:Folder') {
-            for(const res in result) {
-                if(excludeIndex.indexOf(res) == -1 && !patternFile.test(res)) {
-                    console.log("Folder :",res); 
-                    await getAllImages(res, `${parentFolderpath}/${folder}`); 
-                    console.log("------------");
-                } else if(excludeIndex.indexOf(res) == -1 && patternImage.test(res)) {
-                    console.log("This is an image :", res);
-                    const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}/${res}`);
-                    console.log('IMAGE METADATA :',image);
+            const patternFile = new RegExp('(jpg|jpeg|png|svg|pdf|xml)$','g');
+            const patternImage = new RegExp('(jpg|jpeg|png|svg)$','g');
+
+            if (result['jcr:primaryType'] == 'sling:Folder') {
+                for(const res in result) {
+                    if(excludeIndex.indexOf(res) == -1 && !patternFile.test(res)) {
+                        await getAllImages(res, `${parentFolderpath}/${folder}`); 
+                    } else if(excludeIndex.indexOf(res) == -1 && patternImage.test(res)) {
+                        const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}/${res}`);
+                        if (isHeavy(image)) {
+                            
+                        }
+                    }
+                }
+            } 
+            else {
+                if (result['jcr:primaryType'] == 'dam:Asset' && patternImage.test(folder)) {
+                    const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}`);
+                    if (isHeavy(image)) {
+                        
+                    }
                 }
             }
-        } 
-        else {
-            if (result['jcr:primaryType'] == 'dam:Asset' && patternImage.test(folder)) {
-                console.log("This is an image :", folder);
-                const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}`);
-                console.log('IMAGE METADATA :',image);
-            }
-        }
-        
-        
-    } catch (error) {
-        console.log(error.message);
-        return null;
+        } catch (error) {
+            console.log(error.message);
+            return null;
     }
 }
 
 
 
-async function getImages(market='stlukeshealth') {
-    try {
-        const resp = await curly.get(`${crxde}content/dam/${market}/images.1.json?_dc=1656519923105&node=xnode-284`, {
-            httpHeader: [
-                'Accept: */*',
-                'Accept-Language: en-US,en;q=0.9',
-                'Connection: keep-alive',
-                `Cookie: ${COOKIE}`,
-                'Origin: https://author1.stage.commonspirit.adobecqms.net',
-                'Overwrite: T',
-                'Referer: https://author1.stage.commonspirit.adobecqms.net/crx/de/index.jsp',
-                'Sec-Fetch-Dest: empty',
-                'Sec-Fetch-Mode: cors',
-                'Sec-Fetch-Site: same-origin',
-                'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-                'X-Requested-With: XMLHttpRequest',
-                'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
-                'sec-ch-ua-mobile: ?0',
-                'sec-ch-ua-platform: "macOS"'
-            ],
-            sslVerifyPeer: false
-        });
+// async function getImages(market='stlukeshealth') {
+//     try {
+//         const resp = await curly.get(`${crxde}content/dam/${market}/images.1.json?_dc=1656519923105&node=xnode-284`, {
+//             httpHeader: [
+//                 'Accept: */*',
+//                 'Accept-Language: en-US,en;q=0.9',
+//                 'Connection: keep-alive',
+//                 `Cookie: ${COOKIE}`,
+//                 'Origin: https://author1.stage.commonspirit.adobecqms.net',
+//                 'Overwrite: T',
+//                 'Referer: https://author1.stage.commonspirit.adobecqms.net/crx/de/index.jsp',
+//                 'Sec-Fetch-Dest: empty',
+//                 'Sec-Fetch-Mode: cors',
+//                 'Sec-Fetch-Site: same-origin',
+//                 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+//                 'X-Requested-With: XMLHttpRequest',
+//                 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
+//                 'sec-ch-ua-mobile: ?0',
+//                 'sec-ch-ua-platform: "macOS"'
+//             ],
+//             sslVerifyPeer: false
+//         });
 
-        const { statusCode, data } = resp
-        if (statusCode != 200) {
-            return [];
-        } 
-        return JSON.parse(data); 
-    } catch (e) {
-        console.log(e);
-        console.log(e.message);
-        return []
-    }
-}
+//         const { statusCode, data } = resp
+//         if (statusCode != 200) {
+//             return [];
+//         } 
+//         return JSON.parse(data); 
+//     } catch (e) {
+//         console.log(e);
+//         console.log(e.message);
+//         return []
+//     }
+// }
 
 async function getImageMetaDataProperty(path) {
     try {
@@ -147,7 +148,7 @@ async function getImageMetaDataProperty(path) {
         if (statusCode != 200) {
             return [];
         } 
-        return data; 
+        return JSON.parse(data); 
     } catch (e) {
         console.log(e);
         console.log(e.message);
