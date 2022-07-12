@@ -1,7 +1,7 @@
 const XLSX              =   require("xlsx");
 const { curly }         =   require('node-libcurl');
 
-const COOKIE    = 'cq-authoring-mode=TOUCH; __loc=TX|US; fabrickId=E1:Oh-QFJUIqpR_ZphvJz7PCmtpJ84WlV1zHq57dqvUBRCkkEwZjEag_NtuCGpH93jI04yw5YQQzktA7Vg8tO1hnHrS2oQTE4pvtfiFA5JNK0KS5tKLoV7wZ1SXte6Mt6ictxGaC8sA2Lx3vPoxLag6jw; cq-editor-layer.page=Edit; oauth-configid=ims; oauth-authid=ims; AMCVS_8F99160E571FC0427F000101@AdobeOrg=1; lang=en:us; s_cc=true; wcmmode=edit; AMCV_8F99160E571FC0427F000101@AdobeOrg=1687686476|MCIDTS|19185|MCMID|89156023496090199653760977611407146345|MCAAMLH-1658177397|9|MCAAMB-1658177397|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCCIDH|-613026243|MCOPTOUT-1657579734s|NONE|MCAID|NONE|vVersion|3.0.0; adcloud={"_les_v":"y,adobecqms.net,1657574399"}; AMCVS_E13D51085E59F02C0A495CDC@AdobeOrg=1; AMCV_E13D51085E59F02C0A495CDC@AdobeOrg=-2121179033|MCIDTS|19185|MCMID|82662739415969301494412556172947609393|MCAAMLH-1658177399|9|MCAAMB-1658177399|RKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y|MCOPTOUT-1657579799s|NONE|MCAID|NONE|vVersion|5.3.0; utag_main=v_id:0181d4682ee0001ff0f496ad57060506f00a306700bd0$_sn:3$_ss:1$_st:1657574400540$vapi_domain:adobecqms.net$dc_visit:3$ses_id:1657572600540;exp-session$_pn:1;exp-session$dc_event:1;exp-session$dc_region:us-east-1;exp-session; login-token=f7a66dfd-d153-45cc-9a82-52a42baa6e2d:59bc54e8-901c-4629-a35a-555401d2489a_acf2ac5a0c017eaeaa4f4b65ada4434e:crx.default; aem-commonspirit="{36c941922cfd5c6b4e812f4d53c2653b75ae2ad9f3981f6f83b2de731ce7ed2302f5533a10f9b2f63a850656e598767aff20c8ad32c8f39c4174599f258948061489b09338be98b62afb14f9b623285d7b2e82cb8ab987cd3e9e671b39bd02fe5ced6403a1a13faca1b16aad9bd26c20}"'
+const COOKIE    = 'cq-authoring-mode=TOUCH; __loc=TX%7CUS; fabrickId=E1%3AOh-QFJUIqpR_ZphvJz7PCmtpJ84WlV1zHq57dqvUBRCkkEwZjEag_NtuCGpH93jI04yw5YQQzktA7Vg8tO1hnHrS2oQTE4pvtfiFA5JNK0KS5tKLoV7wZ1SXte6Mt6ictxGaC8sA2Lx3vPoxLag6jw; cq-editor-layer.page=Edit; AMCV_8F99160E571FC0427F000101%40AdobeOrg=1687686476%7CMCIDTS%7C19185%7CMCMID%7C89156023496090199653760977611407146345%7CMCAAMLH-1658177397%7C9%7CMCAAMB-1658177397%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCCIDH%7C-613026243%7CMCOPTOUT-1657579734s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C3.0.0; adcloud={%22_les_v%22:%22y%2Cadobecqms.net%2C1657574399%22}; AMCV_E13D51085E59F02C0A495CDC%40AdobeOrg=-2121179033%7CMCIDTS%7C19185%7CMCMID%7C82662739415969301494412556172947609393%7CMCAAMLH-1658177399%7C9%7CMCAAMB-1658177399%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1657579799s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C5.3.0; utag_main=v_id:0181d4682ee0001ff0f496ad57060506f00a306700bd0$_sn:3$_ss:1$_st:1657574400540$vapi_domain:adobecqms.net$dc_visit:3$ses_id:1657572600540%3Bexp-session$_pn:1%3Bexp-session$dc_event:1%3Bexp-session$dc_region:us-east-1%3Bexp-session; oauth-configid=ims; login-token=f7a66dfd-d153-45cc-9a82-52a42baa6e2d%3aa5da567d-726f-436e-be91-648d292778fd_8f17274823416e5250d858b96819d5cd%3acrx.default; aem-commonspirit="{8a4dae48b51332df2e6fec8490ca6c2d4f43b0b09a878c215224339f6c955c830826945a99fb99704409e48e21d6d6f68393532867f96722661df797c386b87f998f6d3d84ab60baba7c462d4a0558c895f4ce5c1b8e76fd98627483a9ad87a30bf4d56d4011ba3349e56cf8b934e991}"; oauth-authid=ims'
 const crxde     = "https://author1.stage.commonspirit.adobecqms.net/crx/server/crx.default/jcr%3aroot/content/";
 
 const options = {
@@ -28,11 +28,11 @@ const options = {
 const availableMarkets = [
     {
         market: "stlukeshealth",
-        domain: "https://www.stlukeshealth.org/"
+        domain: "https://www.stlukeshealth.org"
     },
     {
         market: "stjoseph-stlukeshealth",
-        domain: "https://stjoseph.stlukeshealth.org/"
+        domain: "https://stjoseph.stlukeshealth.org"
     }
 ]; 
 
@@ -139,7 +139,7 @@ async function checkIfLocationIsPublished(market, locationPath) {
         if (statusCode != 200) {
             return null;
         } 
-        return data['isActivated'];
+        return data['isActivated'] && data['lastPublished'];
 
     } catch (error) {
         console.log(error.message);
@@ -250,6 +250,7 @@ async function getAllLocations() {
                     locationDetails['Zip']      =   (itemAddress && itemAddress['zip']) ? itemAddress['zip'] : "";
                     locationDetails['Phone']    =   (itemAddress && itemAddress['phone']) ? itemAddress['phone'] : "";
                     locationDetails['URL']      =   `/locations/${location}`;
+                    locationDetails['domain']   =   market.domain;
                     locationDetails['Hours']    =   await getLocationHours(market.market, location, path);
 
                     locationSheets.push(locationDetails); 
@@ -266,14 +267,23 @@ async function getAllLocations() {
 
 function getLocationsInAEMNotInDrupal(drupalLocations, aemLocations) {
     try {
-        const locations = [];
+        const locations = [["Name", "Street", "City", "State", "Zip", "Phone", "Hours", "URL" ]]; 
         for(const aemLocation of aemLocations) {
             const locationInDrupal = drupalLocations.filter(item => aemLocation['URL'] === item['properties']['path']);
             if (locationInDrupal.length == 0) {
-                locations.push(aemLocation);
+                locations.push([
+                    aemLocation['Name'], 
+                    aemLocation['Street'], 
+                    aemLocation['City'], 
+                    aemLocation['State'], 
+                    aemLocation['Zip'],
+                    aemLocation['Phone'], 
+                    aemLocation['Hours'],
+                    `${aemLocation['domain']}${aemLocation['URL']}`,
+                ]); 
             }
         }
-        console.log("Location in AEM not in Drupal :",locations.length);
+        console.log("Location in AEM not in Drupal :",locations.length - 1);
         return locations; 
 
     } catch (error) {
@@ -283,14 +293,23 @@ function getLocationsInAEMNotInDrupal(drupalLocations, aemLocations) {
 
 function getLocationsInDrupalNotAEM(drupalLocations, aemLocations) {
     try {
-        const locations = [];
+        const locations = [["Name", "Street", "Suite", "City", "State", "Zip", "Phone", "Path" ]];
         for(const drupalLocation of drupalLocations) {
             const locationInAEM = aemLocations.filter(item => item['URL'] === drupalLocation['properties']['path']);
             if (locationInAEM.length == 0) {
-                locations.push(drupalLocation);
+                locations.push([
+                    drupalLocation['properties']['name'] ? drupalLocation['properties']['name'] : "",
+                    drupalLocation['properties']['street'] ? drupalLocation['properties']['street'] : "",
+                    drupalLocation['properties']['suite'] ? drupalLocation['properties']['suite'] : "",
+                    drupalLocation['properties']['city'] ? drupalLocation['properties']['city']: "",
+                    drupalLocation['properties']['state'] ? drupalLocation['properties']['state']: "",
+                    drupalLocation['properties']['zip'] ? drupalLocation['properties']['zip'] : "",
+                    drupalLocation['properties']['phone'] ? drupalLocation['properties']['phone'] : "",
+                    drupalLocation['properties']['path'] ? drupalLocation['properties']['path'] : ""
+                ]);
             }
         }
-        console.log("Location In Drupal Not AEM :",locations.length);
+        console.log("Location In Drupal Not AEM :",locations.length - 1);
         return locations; 
 
     } catch (error) {
@@ -300,14 +319,23 @@ function getLocationsInDrupalNotAEM(drupalLocations, aemLocations) {
 
 function getLocationsInCommon(drupalLocations, aemLocations) {
     try {
-        const locations = [];
-        for(const drupalLocation of drupalLocations) {
-            const locationInAEM = aemLocations.filter(item => item['URL'] === drupalLocation['properties']['path']);
-            if (locationInAEM.length > 0) {
-                locations.push(drupalLocation);
+        const locations = [["Name", "Street", "City", "State", "Zip", "Phone", "Hours", "URL" ]]; 
+        for(const aemLocation of aemLocations) {
+            const locationInDrupal = drupalLocations.filter(item => aemLocation['URL'] === item['properties']['path']);
+            if (locationInDrupal.length > 0) {
+                locations.push([
+                    aemLocation['Name'], 
+                    aemLocation['Street'], 
+                    aemLocation['City'], 
+                    aemLocation['State'], 
+                    aemLocation['Zip'],
+                    aemLocation['Phone'], 
+                    aemLocation['Hours'],
+                    `${aemLocation['domain']}${aemLocation['URL']}`,
+                ]); 
             }
         }
-        console.log("Location In Common :",locations.length);
+        console.log("Location in Common :",locations.length - 1);
         return locations; 
 
     } catch (error) {
@@ -322,8 +350,19 @@ async function runAuditLocations() {
         const locationsInAEMNotDrupal   = getLocationsInAEMNotInDrupal(drupalLocations, aemLocations); 
         const locationsInDrupalNotAEM   = getLocationsInDrupalNotAEM(drupalLocations, aemLocations);
         const locationsInCommon         = getLocationsInCommon(drupalLocations, aemLocations);
-        
+
         const workbook = XLSX.utils.book_new();
+
+        const worksheetlocationsInAEMNotDrupal = XLSX.utils.aoa_to_sheet(locationsInAEMNotDrupal); 
+        XLSX.utils.book_append_sheet(workbook, worksheetlocationsInAEMNotDrupal, "Locations IN AEM Not In Drupal");
+
+        const worksheetlocationsInDrupalNotAEM = XLSX.utils.aoa_to_sheet(locationsInDrupalNotAEM); 
+        XLSX.utils.book_append_sheet(workbook, worksheetlocationsInDrupalNotAEM, "Locations In Drupal Not in AEM");
+
+        const worksheetlocationsInCommon = XLSX.utils.aoa_to_sheet(locationsInCommon); 
+        XLSX.utils.book_append_sheet(workbook, worksheetlocationsInCommon, "Locations In Drupal and AEM");
+        
+        
         XLSX.writeFile(workbook, "aem-locations.xlsx");
     } catch (error) {
         console.log(error.message)
