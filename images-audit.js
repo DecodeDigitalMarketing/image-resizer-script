@@ -1,55 +1,51 @@
 const { curly, Curl }               =   require('node-libcurl');
 const XLSX                          =   require("xlsx");
-const { crxde, options }    =   require("./config/env-config");
+const { crxde, options }            =   require("./config/env-config");
 
-// const COOKIE    = 'cq-authoring-mode=TOUCH; __loc=TX%7CUS; fabrickId=E1%3AOh-QFJUIqpR_ZphvJz7PCmtpJ84WlV1zHq57dqvUBRCkkEwZjEag_NtuCGpH93jI04yw5YQQzktA7Vg8tO1hnHrS2oQTE4pvtfiFA5JNK0KS5tKLoV7wZ1SXte6Mt6ictxGaC8sA2Lx3vPoxLag6jw; cq-editor-layer.page=Edit; adcloud={%22_les_v%22:%22y%2Cadobecqms.net%2C1657574399%22}; AMCV_E13D51085E59F02C0A495CDC%40AdobeOrg=-2121179033%7CMCIDTS%7C19185%7CMCMID%7C82662739415969301494412556172947609393%7CMCAAMLH-1658177399%7C9%7CMCAAMB-1658177399%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1657579799s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C5.3.0; utag_main=v_id:0181d4682ee0001ff0f496ad57060506f00a306700bd0$_sn:3$_ss:1$_st:1657574400540$vapi_domain:adobecqms.net$dc_visit:3$ses_id:1657572600540%3Bexp-session$_pn:1%3Bexp-session$dc_event:1%3Bexp-session$dc_region:us-east-1%3Bexp-session; oauth-configid=ims; login-token=f7a66dfd-d153-45cc-9a82-52a42baa6e2d%3aa5da567d-726f-436e-be91-648d292778fd_8f17274823416e5250d858b96819d5cd%3acrx.default; aem-commonspirit="{8a4dae48b51332df2e6fec8490ca6c2d4f43b0b09a878c215224339f6c955c830826945a99fb99704409e48e21d6d6f68393532867f96722661df797c386b87f998f6d3d84ab60baba7c462d4a0558c895f4ce5c1b8e76fd98627483a9ad87a30bf4d56d4011ba3349e56cf8b934e991}"; oauth-authid=ims; AMCVS_8F99160E571FC0427F000101%40AdobeOrg=1; lang=en%3Aus; s_cc=true; wcmmode=edit; AMCV_8F99160E571FC0427F000101%40AdobeOrg=1687686476%7CMCIDTS%7C19185%7CMCMID%7C89156023496090199653760977611407146345%7CMCAAMLH-1658246969%7C9%7CMCAAMB-1658246969%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCCIDH%7C-613026243%7CMCOPTOUT-1657649325s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C3.0.0; s_sq=%5B%5BB%5D%5D'
-// const crxde     = "https://author1.stage.commonspirit.adobecqms.net/crx/server/crx.default/jcr%3aroot/";
+const excludeIndex = [ 
+    ':jcr:primaryType', 
+    'jcr:created', 
+    ':jcr:created',
+    'jcr:createdBy', 
+    'jcr:primaryType', 
+    ':jcr:mixinTypes', 
+    'jcr:content',
+    '::NodeIteratorSize',
+    'jcr:mixinTypes',
+    'jcr:lastModifiedBy',
+    ':jcr:lastModifiedBy',
+    ':jcr:lastModified',
+    'jcr:lastModified',
+    'cq:lastReplicationAction',
+    'cq:lastReplicatedBy',
+    ':cq:lastReplicated',
+    'cq:lastReplicated'
+];
 
-async function getImagesInDam() {
-    try {
-        const resp = await curly.get(`${crxde}content/dam.1.json`, options);
-
-        const { statusCode, data } = resp
-        if (statusCode != 200) {
-            return null;
-        } 
-
-        const result = JSON.parse(data);
-        const excludeIndex = [ 
-            ':jcr:creadted', 
-            ':jcr:primaryType', 
-            'jcr:created', 
-            ':jcr:created',
-            'jcr:createdBy', 
-            'jcr:primaryType', 
-            ':jcr:mixinTypes', 
-            'jcr:content',
-            '::NodeIteratorSize',
-            'jcr:mixinTypes' 
-        ];
-
-        if (result['jcr:primaryType'] == 'sling:Folder') {
-            for(const res in result) {
-                if(excludeIndex.indexOf(res) == -1) {
-                    await getAllImages(res, '/dam'); 
-                }
-            }
-        }
-        
-    } catch (error) {
-        console.log(error.message);
-        return null;
-    }
-}
+const allImagesPaths = [];
 
 function isHeavy(image) {
-    return (image["dam:size"] && image["dam:size"] > 250000) ? true : false; 
+    if (image["dam:size"] && image["dam:size"] > 250000) {
+        return true;
+    }
+    return false; 
+}
+
+function checkIfFolder(objectname) {
+    const patternFile   = new RegExp('(jpg|jpeg|png|svg|pdf|xml|ico|JPEG|JPG|PNG|xlsx|json|csv|xls|doc|docx|XLSX|txt|gif|html|webp)$','g');
+    return !patternFile.test(objectname) && !excludeIndex.includes(objectname); 
+}
+
+function checkIfImage(objectname) {
+    const patternImage  = new RegExp('(jpg|jpeg|png|svg|ico|PNG|JPG|gif|JPEG|webp)$','g');
+    return patternImage.test(objectname) && !excludeIndex.includes(objectname); 
 }
 
 async function getAllImages(folder, parentFolderpath) {
     try {
-            const path = `${parentFolderpath}/${folder}`;
-            const resp = await curly.get(`${crxde}content${encodeURI(path)}.1.json`, options);
+            const path  =   `${parentFolderpath}/${folder}`;
+            const url   =   `${crxde}content${encodeURI(path)}.1.json`;
+            const resp  =   await curly.get(url, options);
 
             const { statusCode, data } = resp
             if (statusCode != 200) {
@@ -57,44 +53,24 @@ async function getAllImages(folder, parentFolderpath) {
             } 
 
             const result = JSON.parse(data);
-            const excludeIndex = [ 
-                ':jcr:creadted', 
-                ':jcr:primaryType', 
-                'jcr:created', 
-                ':jcr:created',
-                'jcr:createdBy', 
-                'jcr:primaryType', 
-                ':jcr:mixinTypes', 
-                'jcr:content',
-                '::NodeIteratorSize',
-                'jcr:mixinTypes' 
-            ];
+            
 
-            const heavyImages = [];
-
-            const patternFile = new RegExp('(jpg|jpeg|png|svg|pdf|xml)$','g');
-            const patternImage = new RegExp('(jpg|jpeg|png|svg)$','g');
-
-            if (result['jcr:primaryType'] == 'sling:Folder') {
+            if (result['jcr:primaryType'] != 'dam:Asset') {
                 for(const res in result) {
-                    if(excludeIndex.indexOf(res) == -1 && !patternFile.test(res)) {
-                        await getAllImages(res, `${parentFolderpath}/${folder}`); 
-                    } else if(excludeIndex.indexOf(res) == -1 && patternImage.test(res)) {
+                    if (checkIfFolder(res)) {
+                        console.log("Folder :", res);
+                        const allImages = await getAllImages(res, `${parentFolderpath}/${folder}`);
+                    } 
+                    if (checkIfImage(res)) {
+                        console.log("Image :", res); 
                         const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}/${res}`);
                         if (isHeavy(image)) {
-                            
+                            allImagesPaths.push(`${parentFolderpath}/${folder}/${res}`); 
                         }
                     }
                 }
             } 
-            else {
-                if (result['jcr:primaryType'] == 'dam:Asset' && patternImage.test(folder)) {
-                    const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}`);
-                    if (isHeavy(image)) {
-                        
-                    }
-                }
-            }
+            
         } catch (error) {
             console.log(error.message);
             return null;
@@ -141,18 +117,19 @@ async function getAllImages(folder, parentFolderpath) {
 async function getImageMetaDataProperty(path) {
     try {
         const url = `${crxde}content${encodeURI(path)}/jcr%3Acontent/metadata.1.json`;
-        console.log("URL REQUEST : ", url);
         const resp = await curly.get(url, options);
 
         const { statusCode, data } = resp
         if (statusCode != 200) {
-            return [];
+            return null;
         } 
-        return JSON.parse(data); 
+        const result = JSON.parse(data);
+        console.log(result);
+        return result; 
     } catch (e) {
         console.log(e);
         console.log(e.message);
-        return []
+        return null
     }
 }
 
@@ -184,7 +161,7 @@ async function search(imageName) {
         if (statusCode != 200) {
             return [];
         } 
-        console.log(data);
+        //console.log(data);
         return data; 
     } catch (e) {
         console.log(e);
@@ -223,6 +200,15 @@ async function getPagesWithHeavyImages(market='stlukeshealth') {
     }
 }
 
-// getPagesWithHeavyImages('stjoseph-stlukeshealth'); 
-//getImages(); 
-getImagesInDam(); 
+//getPagesWithHeavyImages('stlukeshealth'); 
+//getImages();
+async function runImagesScripts() {
+    await getAllImages('dam', ''); 
+    console.log(allImagesPaths);
+    console.log(allImagesPaths.length+" images are heavy");
+    return allImagesPaths; 
+} 
+
+runImagesScripts(); 
+
+
