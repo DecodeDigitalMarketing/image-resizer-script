@@ -66,6 +66,10 @@ async function getAllImages(folder, parentFolderpath) {
                         const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}/${res}`);
                         if (isHeavy(image)) {
                             allImagesPaths.push(`${parentFolderpath}/${folder}/${res}`); 
+                            // const searchResult = await search(img); 
+                            // searchResult.results.forEach((item) => {
+                            //     pathObj.push([img, item.path]);
+                            // });
                         }
                     }
                 }
