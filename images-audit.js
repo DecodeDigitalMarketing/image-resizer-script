@@ -1,6 +1,6 @@
-const { curly, Curl }               =   require('node-libcurl');
-const XLSX                          =   require("xlsx");
-const { crxde, options }            =   require("./config/env-config");
+const { curly }            =   require('node-libcurl');
+const XLSX                 =   require("xlsx");
+const { crxde, options }   =   require("./config/env-config");
 
 const excludeIndex = [ 
     ':jcr:primaryType', 
@@ -22,7 +22,13 @@ const excludeIndex = [
     'cq:lastReplicated'
 ];
 
-const allImagesPaths = [];
+const allImagesPaths = new Set();
+allImagesPaths.add(["Image Name", "Image Path", "Page Path", "URL"]); 
+
+const availableMarkets = {
+    'stlukeshealth' : 'https://www.stlukeshealth.org/',
+    'stjoseph-stlukeshealth': 'https://stjoseph.stlukeshealth.org/'
+}
 
 function isHeavy(image) {
     if (image["dam:size"] && image["dam:size"] > 250000) {
@@ -65,11 +71,7 @@ async function getAllImages(folder, parentFolderpath) {
                         console.log("Image :", res); 
                         const image = await getImageMetaDataProperty(`${parentFolderpath}/${folder}/${res}`);
                         if (isHeavy(image)) {
-                            allImagesPaths.push(`${parentFolderpath}/${folder}/${res}`); 
-                            // const searchResult = await search(img); 
-                            // searchResult.results.forEach((item) => {
-                            //     pathObj.push([img, item.path]);
-                            // });
+                            await extractPages(`${parentFolderpath}/${folder}/${res}`, res); 
                         }
                     }
                 }
@@ -81,54 +83,49 @@ async function getAllImages(folder, parentFolderpath) {
     }
 }
 
+async function extractPages(path, imageName) {
+    const fullPath = `${path}`;
+    const searchResult = await search(imageName); 
+    if (!searchResult.results.length) {
+        return [];
+    }
+    
+    const filterFunction = function(item) {
+        if (item.path && !item.path.includes('/dam') && !item.path.includes('/nonprod-test')) {
+            return true; 
+        }
+        return false;
+    }
 
-
-// async function getImages(market='stlukeshealth') {
-//     try {
-//         const resp = await curly.get(`${crxde}content/dam/${market}/images.1.json?_dc=1656519923105&node=xnode-284`, {
-//             httpHeader: [
-//                 'Accept: */*',
-//                 'Accept-Language: en-US,en;q=0.9',
-//                 'Connection: keep-alive',
-//                 `Cookie: ${COOKIE}`,
-//                 'Origin: https://author1.stage.commonspirit.adobecqms.net',
-//                 'Overwrite: T',
-//                 'Referer: https://author1.stage.commonspirit.adobecqms.net/crx/de/index.jsp',
-//                 'Sec-Fetch-Dest: empty',
-//                 'Sec-Fetch-Mode: cors',
-//                 'Sec-Fetch-Site: same-origin',
-//                 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-//                 'X-Requested-With: XMLHttpRequest',
-//                 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
-//                 'sec-ch-ua-mobile: ?0',
-//                 'sec-ch-ua-platform: "macOS"'
-//             ],
-//             sslVerifyPeer: false
-//         });
-
-//         const { statusCode, data } = resp
-//         if (statusCode != 200) {
-//             return [];
-//         } 
-//         return JSON.parse(data); 
-//     } catch (e) {
-//         console.log(e);
-//         console.log(e.message);
-//         return []
-//     }
-// }
+    searchResult.results.forEach((item) => {
+        if (filterFunction(item)) {
+            let domain = ''
+            let url = item.path.split('/jcr:content')[0];
+            if (item.path.includes('/stlukeshealth/')) {
+                domain = availableMarkets['stlukeshealth']; 
+                url = `${domain}${url.replace('/content/stlukeshealth/en/', '')}`;
+                allImagesPaths.add([imageName, fullPath, item.path, url]);
+            } 
+            if (item.path.includes('/stjoseph-stlukeshealth/')) {
+                domain = availableMarkets['stjoseph-stlukeshealth'];
+                url = `${domain}${url.replace('/content/stjoseph-stlukeshealth/en/', '')}`;
+                allImagesPaths.add([imageName, fullPath, item.path, url]);
+            }
+        }
+    });
+}
 
 async function getImageMetaDataProperty(path) {
     try {
         const url = `${crxde}content${encodeURI(path)}/jcr%3Acontent/metadata.1.json`;
+        console.log("Getting Image Metadata function URL Request :", url);
         const resp = await curly.get(url, options);
 
         const { statusCode, data } = resp
         if (statusCode != 200) {
-            return null;
+            return [];
         } 
         const result = JSON.parse(data);
-        console.log(result);
         return result; 
     } catch (e) {
         console.log(e);
@@ -139,33 +136,14 @@ async function getImageMetaDataProperty(path) {
 
 async function search(imageName) {
     try {
-        const searchUrl = 'https://author1.stage.commonspirit.adobecqms.net/crx/de/search.jsp'
-        const resp = await curly.get(`${searchUrl}?_dc=1656531436482&query=${imageName}&start=1&limit=100&_charset_=utf-8`, {
-            httpHeader: [
-                'Accept: */*',
-                'Accept-Language: en-US,en;q=0.9',
-                'Connection: keep-alive',
-                `Cookie: ${COOKIE}`,
-                'Origin: https://author1.stage.commonspirit.adobecqms.net',
-                'Overwrite: T',
-                'Referer: https://author1.stage.commonspirit.adobecqms.net/crx/de/index.jsp',
-                'Sec-Fetch-Dest: empty',
-                'Sec-Fetch-Mode: cors',
-                'Sec-Fetch-Site: same-origin',
-                'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-                'X-Requested-With: XMLHttpRequest',
-                'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
-                'sec-ch-ua-mobile: ?0',
-                'sec-ch-ua-platform: "macOS"'
-            ],
-            sslVerifyPeer: false
-        });
+        const searchUrl     =   'https://author1.stage.commonspirit.adobecqms.net/crx/de/search.jsp'
+        const urlRequest    =   `${searchUrl}?_dc=1656531436482&query=${encodeURI(imageName)}&start=1&limit=100&_charset_=utf-8`
+        const resp          =   await curly.get(urlRequest, options);
 
         const { statusCode, data } = resp
         if (statusCode != 200) {
             return [];
         } 
-        //console.log(data);
         return data; 
     } catch (e) {
         console.log(e);
@@ -174,43 +152,12 @@ async function search(imageName) {
     }
 }
 
-// size in bytes
-async function getPagesWithHeavyImages(market='stlukeshealth') {
-    try {
-        const images = await getImages(market); 
-        let pathObj = [["Image Name", "Paths"]];
-        for(let img in images) {
-            if (images[img]['jcr:primaryType'] === 'dam:Asset') {
-                const path = `content/dam/${market}/images/${img}`;
-                const property = await getImageMetaDataProperty(path); 
-                const parseData = (typeof property === 'string') ? JSON.parse(property) : property; 
-                if (parseData["dam:size"] && parseData["dam:size"] > 250000) {
-                    const searchResult = await search(img); 
-                    searchResult.results.forEach((item) => {
-                        pathObj.push([img, item.path]);
-                    });
-                }
-            }
-        }
-        //console.log(pathObj);
-        //fs.writeFileSync('./paths.json', JSON.stringify(pathObj)); 
-        const worksheet = XLSX.utils.aoa_to_sheet(pathObj); 
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "StJoseph");
-        XLSX.writeFile(workbook, "image-audit.xlsx");
-
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-//getPagesWithHeavyImages('stlukeshealth'); 
-//getImages();
 async function runImagesScripts() {
     await getAllImages('dam', ''); 
-    console.log(allImagesPaths);
-    console.log(allImagesPaths.length+" images are heavy");
-    return allImagesPaths; 
+    const worksheet = XLSX.utils.aoa_to_sheet(Array.from(allImagesPaths)); 
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Images");
+    XLSX.writeFile(workbook, "image-audit.xlsx");
 } 
 
 runImagesScripts(); 
