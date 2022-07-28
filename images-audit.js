@@ -160,6 +160,8 @@ async function runImagesScripts() {
     XLSX.writeFile(workbook, "image-audit.xlsx");
 } 
 
-runImagesScripts(); 
+module.exports = {
+    runImagesScripts
+}
 
 
