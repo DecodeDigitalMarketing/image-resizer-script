@@ -1,4 +1,4 @@
-# AEM EXPERIENCE FRAGMENTS
+# IMAGE RESIZER SCRIPT
 
 The goal of this project is to run a script that go into the dam on aem and find all images that are above 250kb and all paths where those images have been used.
 
